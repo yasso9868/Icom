@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICOM - Integrated Communication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modern CSS Custom Properties */
+        :root {
+            --primary: #0f74e9;
+            --primary-dark: #0445a1;
+            --primary-light: rgba(15, 116, 233, 0.1);
+            --secondary: #14b8a6;
+            --accent: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s ease-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+        }
+
+        /* Watermark Background - Positioned to the right */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('Screenshot\ 2025-07-27\ 135931.png');
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-size: 300px;
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--gray-900);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+        }
+
+        h3 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        h4 {
+            font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+        }
+
+        p {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: var(--gray-600);
+        }
+
+        /* Utilities */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .section-description {
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.8;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--white);
+            margin-top: 1rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(15, 116, 233, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .header.scrolled {
+            top: 0.5rem;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Logo animation */
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s ease;
+        }
+
+        .logo:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray-800);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: var(--transition-fast);
+            position: relative;
+        }
+
+        /* Nav link hover effect */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg,
+                    rgba(5, 47, 94, 0.9) 0%,
+                    rgba(2, 39, 90, 0.808) 100%),
+                url('Screenshot\ 2025-07-27\ 135931.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+            animation: shimmer 8s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(100%);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        /* Hero title animation */
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 1s ease;
+        }
+
+        .hero-title.animate::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            font-weight: 400;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 1s ease, opacity 1s ease;
+            transition-delay: 0.3s;
+        }
+
+        .hero-subtitle.animate {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 1s ease, opacity 1s ease;
+            transition-delay: 0.6s;
+        }
+
+        .hero-buttons.animate {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Button hover effect */
+        .btn-primary::before,
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-primary:hover::before,
+        .btn-secondary:hover::before {
+            transform: translateX(100%);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .mouse-icon {
+            width: 24px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .mouse-icon::before {
+            content: '';
+            width: 4px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 2px;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: scroll-wheel 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        @keyframes scroll-wheel {
+            0% {
+                opacity: 1;
+                top: 8px;
+            }
+
+            100% {
+                opacity: 0;
+                top: 20px;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            height: 100%;
+            border: 1px solid var(--gray-100);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                       opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                       box-shadow 0.3s ease;
+        }
+
+        .card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Card hover gradient effect */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-light), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Card icon hover effect */
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover .card-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .card:hover .card-icon::after {
+            transform: translateX(100%);
+        }
+
+        /* About Section */
+        .about {
+            background: var(--gray-50);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-image {
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            aspect-ratio: 4/3;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                       opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .about-image.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Stat item hover effect */
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-light), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .stat-item:hover::before {
+            opacity: 1;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Mission Vision */
+        .mission-vision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Values */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .value-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .value-list li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 2rem;
+            transition: var(--transition-fast);
+        }
+
+        .value-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .value-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            transition: var(--transition-fast);
+        }
+
+        .value-list li:hover::before {
+            transform: scale(1.2);
+        }
+
+        /* Services */
+        .services {
+            background: var(--gray-50);
+        }
+
+        .service-tabs {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: var(--gray-100);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1.25rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: var(--transition);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            animation: underlineGrow 0.3s ease-out;
+        }
+
+        @keyframes underlineGrow {
+            from {
+                transform: scaleX(0);
+            }
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        .tab-content {
+            padding: 3rem;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .service-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .service-image {
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .service-image:hover {
+            transform: rotate(-1deg) scale(1.02);
+        }
+
+        .service-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .service-image:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .project-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .project-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+            padding-left: 2rem;
+            transition: var(--transition-fast);
+        }
+
+        .project-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .project-list li:last-child {
+            border-bottom: none;
+        }
+
+        .project-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            transition: var(--transition-fast);
+        }
+
+        .project-list li:hover::before {
+            transform: translateX(5px);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .gallery-item {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                       opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-item.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .gallery-image {
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gallery-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(15, 116, 233, 0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .gallery-item:hover .gallery-image::after {
+            transform: translateX(100%);
+        }
+
+        .gallery-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .gallery-image img {
+            transform: scale(1.1);
+        }
+
+        .gallery-caption {
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* Contact */
+        .contact {
+            background: var(--gray-50);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .contact-info {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            transition: var(--transition-fast);
+        }
+
+        .contact-item:hover {
+            transform: translateX(5px);
+        }
+
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .contact-item:hover .contact-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .contact-details h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+
+        .contact-details p,
+        .contact-details a {
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        .contact-details a:hover {
+            color: var(--primary);
+        }
+
+        .contact-form {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 116, 233, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-status {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .form-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .form-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: var(--white);
+            padding: 4rem 0 2rem;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('watermark.png') center/300px no-repeat;
+            opacity: 0.03;
+            z-index: 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section h4 {
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Footer title animation */
+        .footer-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s ease;
+        }
+
+        .footer-section:hover h4::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .footer-section p {
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            background: var(--gray-800);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px) rotate(5deg);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-800);
+            color: var(--gray-400);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+
+            .about-content,
+            .service-content,
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                transform: none;
+            }
+
+            .navbar {
+                border-radius: 0;
+                padding: 1rem 1.5rem;
+                justify-content: space-between;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--white);
+                flex-direction: column;
+                padding: 2rem;
+                box-shadow: var(--shadow-lg);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .hero {
+                padding-top: 6rem;
+                min-height: calc(100vh - 6rem);
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                text-align: left;
+            }
+
+            .section {
+                padding: 4rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .about-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Floating Bubbles Animation */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        /* Smooth Scroll Indicator */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Wave Divider */
+        .wave-divider {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+
+        .wave-divider svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 50px;
+        }
+
+        .wave-divider .shape-fill {
+            fill: var(--gray-50);
+        }
+
+        /* New: Animated gradient text for ICOM logo */
+        .logo-gradient {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 8s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* New: Floating elements animation */
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* New: Pulse animation for important elements */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse 4s ease infinite;
+        }
+
+        /* New: Glow effect for interactive elements */
+        .glow-on-hover {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .glow-on-hover:hover {
+            box-shadow: 0 0 15px rgba(15, 116, 233, 0.5);
+        }
+
+        /* New: Text reveal animation */
+        .text-reveal {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text-reveal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1s ease;
+            z-index: 1;
+        }
+
+        .text-reveal.animate::after {
+            transform: scaleX(1);
+            transform-origin: right;
+        }
+
+        /* New: Icon bounce animation */
+        @keyframes iconBounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .icon-bounce {
+            animation: iconBounce 2s infinite;
+        }
+
+        /* New: Subtle parallax effect */
+        .parallax-element {
+            transition: transform 0.2s ease-out;
+        }
+
+        /* New: Line-by-line text animation */
+        .line-animation {
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .line-animation span {
+            display: inline-block;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                       opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .line-animation.animate span {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* New: Section entrance animation */
+        .section-entrance {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                       transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .section-entrance.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* New: Underline animation */
+        .underline-animation {
+            position: relative;
+            display: inline-block;
+        }
+
+        .underline-animation::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .underline-animation.animate::after {
+            width: 100%;
+        }
+
+        /* New: Fade-in animation */
+        .fade-in {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+        }
+
+        /* New: Slide-in animation */
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* New: Scale-in animation */
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .scale-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* New: Rotate-in animation */
+        .rotate-in {
+            opacity: 0;
+            transform: rotate(-5deg);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .rotate-in.visible {
+            opacity: 1;
+            transform: rotate(0);
+        }
+
+        /* New: Mask reveal animation */
+        .mask-reveal {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mask-reveal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1;
+        }
+
+        .mask-reveal.animate::after {
+            transform: scaleX(1);
+            transform-origin: right;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loader"></div>
+        <div class="loading-text">Connecting Worlds...</div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Smooth Scroll Indicator -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="#" class="logo"><span class="logo-gradient">ICOM</span></a>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#values">Values</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title line-animation" id="heroTitle">
+                    <span>We build what keeps you connected</span>
+                </h1>
+                <p class="hero-subtitle line-animation" id="heroSubtitle">
+                    <span>Innovative telecommunications solutions for a connected world</span>
+                </p>
+                <div class="hero-buttons" id="heroButtons">
+                    <a href="#contact" class="btn btn-primary glow-on-hover">
+                        <i class="fas fa-rocket"></i>
+                        Get Started
+                    </a>
+                    <a href="#services" class="btn btn-secondary glow-on-hover">
+                        <i class="fas fa-play"></i>
+                        Our Services
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse-icon"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about">
+        <div class="wave-divider">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="section-header section-entrance">
+                <h2 class="section-title underline-animation">About ICOM</h2>
+                <p class="section-description">Your trusted telecommunications partner since 2014</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text slide-in-left">
+                    <p>Founded in 2014, ICOM has built a distinguished reputation characterized by a unique combination
+                        of quality, value, trust, and reliability.</p>
+                    <p>With extensive experience in the Telecommunications marketplace, ICOM has successfully delivered
+                        a wide range of services to its valued customers across the African region.</p>
+                    <div class="about-stats">
+                        <div class="stat-item pulse-animation">
+                            <span class="stat-number">11+</span>
+                            <span class="stat-label">Years Experience</span>
+                        </div>
+                        <div class="stat-item pulse-animation" style="animation-delay: 0.2s;">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Projects Completed</span>
+                        </div>
+                        <div class="stat-item pulse-animation" style="animation-delay: 0.4s;">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Expert Team</span>
+                        </div>
+                        <div class="stat-item pulse-animation" style="animation-delay: 0.6s;">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Support</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image slide-in-right">
+                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                        alt="Telecommunications infrastructure" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision Section -->
+    <section class="section mission-vision">
+        <div class="container">
+            <div class="mission-vision-grid">
+                <div class="card glow-on-hover rotate-in">
+                    <div class="card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To be recognized and valued as a successful system integrator & professional services provider in
+                        the African region.</p>
+                </div>
+                <div class="card glow-on-hover rotate-in" style="transition-delay: 0.2s;">
+                    <div class="card-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>Outstanding service provider with reference to continuous improvement in order to reach beyond
+                        customer expectation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section id="values" class="section values">
+        <div class="container">
+            <div class="section-header section-entrance">
+                <h2 class="section-title underline-animation">Our Core Values</h2>
+                <p class="section-description">The principles that guide everything we do</p>
+            </div>
+            <div class="values-grid">
+                <div class="card glow-on-hover scale-in">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Customer Centricity</h3>
+                    <ul class="value-list">
+                        <li>Acting as customer advisor</li>
+                        <li>Delivering beyond our promises</li>
+                        <li>Protecting customer interests</li>
+                    </ul>
+                </div>
+                <div class="card glow-on-hover scale-in" style="transition-delay: 0.1s;">
+                    <div class="card-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Collaboration</h3>
+                    <ul class="value-list">
+                        <li>Encouraging team spirit</li>
+                        <li>Supporting team capabilities</li>
+                        <li>Accepting differences</li>
+                    </ul>
+                </div>
+                <div class="card glow-on-hover scale-in" style="transition-delay: 0.2s;">
+                    <div class="card-icon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h3>Leadership</h3>
+                    <ul class="value-list">
+                        <li>Thinking and acting proactively</li>
+                        <li>Taking ownership of mistakes</li>
+                        <li>Celebrating achievements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section services">
+        <div class="container">
+            <div class="section-header section-entrance">
+                <h2 class="section-title underline-animation">Our Services</h2>
+                <p class="section-description">Comprehensive telecommunications solutions</p>
+            </div>
+            <div class="service-tabs mask-reveal">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="rollout">Rollout</button>
+                    <button class="tab-btn" data-tab="bss">BSS & Optimization</button>
+                    <button class="tab-btn" data-tab="transmission">Transmission</button>
+                    <button class="tab-btn" data-tab="supply">Supply</button>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="rollout">
+                        <div class="service-content">
+                            <div class="service-text slide-in-left">
+                                <h3>Rollout Services</h3>
+                                <h4>Site Acquisition</h4>
+                                <p>Permits & legalization (NTRA, Military, Ministry of Electricity & Power).</p>
+                                <h4>Site Construction</h4>
+                                <ul>
+                                    <li>Roof Top: Tower Base, Tower & Mast Installation</li>
+                                    <li>Green Field: Civil works, Soil investigation</li>
+                                </ul>
+                            </div>
+                            <div class="service-image slide-in-right">
+                                <img src="Telecom tower construction.jpg" alt="Telecom tower construction"
+                                    loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="bss">
+                        <div class="service-content">
+                            <div class="service-text slide-in-left">
+                                <h3>BSS, RF Drive Test & Optimization</h3>
+                                <ul>
+                                    <li>GSM antennas and feeder installation</li>
+                                    <li>Drive test services and benchmarking</li>
+                                    <li>Site/Area adjustment</li>
+                                </ul>
+                            </div>
+                            <div class="service-image slide-in-right">
+                                <img src="https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Network testing equipment" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="transmission">
+                        <div class="service-content">
+                            <div class="service-text slide-in-left">
+                                <h3>Transmission</h3>
+                                <ul>
+                                    <li>Fiber Solutions (Access, Core, FTTH & FTTS)</li>
+                                    <li>Microwave installation/swap</li>
+                                    <li>Transmission equipment installation</li>
+                                </ul>
+                            </div>
+                            <div class="service-image slide-in-right">
+                                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Fiber optic cables" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="supply">
+                        <div class="service-content">
+                            <div class="service-text slide-in-left">
+                                <h3>Supply</h3>
+                                <h4>Optical Fiber Distribution Frames (ODF)</h4>
+                                <ul>
+                                    <li>ODF-RS21 - 48.2x31.7x4.5cm 3.5kg</li>
+                                    <li>ODF-RS24 - 48.2x31.7x4.5cm 4kg</li>
+                                    <li>ODF-RS24-A - 48.2 x32.6x7cm 7kg</li>
+                                    <li>ODF-RS48-A - 48.2x32.6x10cm 7.5kg</li>
+                                    <li>ODF-RS72-A - 48.2x32.6x13.3cm 8.5kg</li>
+                                    <li>ODF-RS96-A - 48.2x32.6x16.6cm 9.8kg</li>
+                                </ul>
+                            </div>
+                            <div class="service-image slide-in-right">
+                                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                    alt="Telecom equipment" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section projects">
+        <div class="container">
+            <div class="section-header section-entrance">
+                <h2 class="section-title underline-animation">Reference Projects</h2>
+                <p class="section-description">Our proud achievements in telecommunications</p>
+            </div>
+            <div class="projects-grid">
+                <div class="card glow-on-hover fade-in">
+                    <h3>Orange</h3>
+                    <ul class="project-list">
+                        <li>Supply & Install Indoor optical fiber networks</li>
+                        <li>Supply & Install Outdoor optical fiber networks</li>
+                    </ul>
+                </div>
+                <div class="card glow-on-hover fade-in" style="transition-delay: 0.2s;">
+                    <h3>Egyptian Ministry of Defense</h3>
+                    <ul class="project-list">
+                        <li>Supply Fiber Optics OTDR Testers</li>
+                        <li>Supply Power Stabilizers</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item glow-on-hover fade-in">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                            alt="Alexandria Library" loading="lazy">
+                    </div>
+                    <div class="gallery-caption">Alexandria Library</div>
+                </div>
+                <div class="gallery-item glow-on-hover fade-in" style="transition-delay: 0.2s;">
+                    <div class="gallery-image">
+                        <img src="City Stars Mall.webp" alt="City Stars Mall" loading="lazy">
+                    </div>
+                    <div class="gallery-caption">City Stars Mall</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact">
+        <div class="container">
+            <div class="section-header section-entrance">
+                <h2 class="section-title underline-animation">Contact Us</h2>
+                <p class="section-description">Get in touch with our team</p>
+            </div>
+            <div class="contact-container">
+                <div class="contact-info slide-in-left">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Address</h4>
+                            <p>19 Mohammed El-Saedy Street<br>Nasr City, Cairo, Egypt</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Phone</h4>
+                            <p>+20 2 123 4567</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Email</h4>
+                            <p><a href="mailto:info@icom-eg.com">info@icom-eg.com</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form slide-in-right">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary glow-on-hover">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section fade-in">
+                    <h4><span class="logo-gradient">ICOM</span></h4>
+                    <p>Integrated Communication - Your trusted telecommunications partner connecting the world through
+                        innovative solutions.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section fade-in" style="transition-delay: 0.1s;">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#values">Values</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section fade-in" style="transition-delay: 0.2s;">
+                    <h4>Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#services">Rollout Services</a></li>
+                        <li><a href="#services">BSS & Optimization</a></li>
+                        <li><a href="#services">Transmission</a></li>
+                        <li><a href="#services">Supply</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section fade-in" style="transition-delay: 0.3s;">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Nasr City, Cairo, Egypt</p>
+                    <p><i class="fas fa-phone-alt"></i> +20 2 123 4567</p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@icom-eg.com">info@icom-eg.com</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ICOM - Integrated Communication. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced JavaScript with premium animations and effects
+        class ICOMWebsite {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.handleLoading();
+                this.createParticles();
+                this.setupHeader();
+                this.setupMobileMenu();
+                this.setupTabs();
+                this.setupSmoothScrolling();
+                this.setupForm();
+                this.setupScrollProgress();
+                this.setupIntersectionObserver();
+                this.setupParallax();
+                this.setupHeroAnimations();
+                this.setupLineAnimations();
+            }
+
+            handleLoading() {
+                const loadingScreen = document.querySelector('.loading-screen');
+
+                // Simulate loading time
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+
+                    // Remove loading screen from DOM after transition
+                    setTimeout(() => {
+                        loadingScreen.remove();
+                    }, 500);
+                }, 1500);
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 20;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // Random size between 5px and 15px
+                    const size = Math.random() * 10 + 5;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    
+                    // Random position
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    
+                    // Random animation duration and delay
+                    const duration = Math.random() * 20 + 10;
+                    const delay = Math.random() * 5;
+                    particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                    
+                    // Random opacity
+                    particle.style.opacity = Math.random() * 0.2 + 0.05;
+                    
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            setupHeader() {
+                const header = document.querySelector('.header');
+                let lastScroll = 0;
+
+                const updateHeader = () => {
+                    const currentScroll = window.pageYOffset;
+
+                    if (currentScroll > 100) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+
+                    lastScroll = currentScroll;
+                };
+
+                // Throttle scroll events for better performance
+                let ticking = false;
+                window.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        requestAnimationFrame(() => {
+                            updateHeader();
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                });
+            }
+
+            setupMobileMenu() {
+                const mobileToggle = document.querySelector('.mobile-toggle');
+                const navLinks = document.querySelector('.nav-links');
+                const navItems = document.querySelectorAll('.nav-links a');
+
+                const toggleMenu = () => {
+                    navLinks.classList.toggle('active');
+                    const icon = mobileToggle.querySelector('i');
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
+
+                    // Prevent body scroll when menu is open
+                    document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
+                };
+
+                mobileToggle.addEventListener('click', toggleMenu);
+
+                // Close menu when clicking nav items
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (navLinks.classList.contains('active')) {
+                            toggleMenu();
+                        }
+                    });
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!mobileToggle.contains(e.target) && !navLinks.contains(e.target)) {
+                        if (navLinks.classList.contains('active')) {
+                            toggleMenu();
+                        }
+                    }
+                });
+            }
+
+            setupTabs() {
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                const tabPanes = document.querySelectorAll('.tab-pane');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetTab = button.getAttribute('data-tab');
+
+                        // Remove active class from all buttons and panes
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+                        // Add active class to clicked button and target pane
+                        button.classList.add('active');
+                        document.getElementById(targetTab).classList.add('active');
+                    });
+                });
+            }
+
+            setupSmoothScrolling() {
+                const links = document.querySelectorAll('a[href^="#"]');
+
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+
+                        const targetId = link.getAttribute('href');
+                        if (targetId === '#') return;
+
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            const headerHeight = document.querySelector('.header').offsetHeight;
+                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
+
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            }
+
+            setupScrollProgress() {
+                const progressBar = document.getElementById('progressBar');
+                
+                window.addEventListener('scroll', () => {
+                    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const scrollProgress = (scrollTop / scrollHeight) * 100;
+                    
+                    progressBar.style.width = `${scrollProgress}%`;
+                });
+            }
+
+            setupForm() {
+                const form = document.getElementById('contactForm');
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData);
+
+                    // Validate form
+                    if (!this.validateForm(data)) {
+                        this.showFormMessage('Please fill in all fields correctly.', 'error');
+                        return;
+                    }
+
+                    // Show success message
+                    this.showFormMessage('Thank you! Your message has been sent successfully.', 'success');
+                    form.reset();
+                });
+            }
+
+            validateForm(data) {
+                const { name, email, subject, message } = data;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                return name.trim() &&
+                    email.trim() &&
+                    emailRegex.test(email) &&
+                    subject.trim() &&
+                    message.trim();
+            }
+
+            showFormMessage(message, type) {
+                const form = document.getElementById('contactForm');
+                const existingMessage = form.querySelector('.form-status');
+
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                const messageElement = document.createElement('div');
+                messageElement.className = `form-status form-${type}`;
+                messageElement.textContent = message;
+
+                form.insertBefore(messageElement, form.firstChild);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 5000);
+            }
+
+            setupIntersectionObserver() {
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                // Observe all animated elements
+                document.querySelectorAll('.section-entrance, .slide-in-left, .slide-in-right, .fade-in, .scale-in, .rotate-in, .mask-reveal').forEach(element => {
+                    observer.observe(element);
+                });
+            }
+
+            setupParallax() {
+                const parallaxElements = document.querySelectorAll('.parallax-element');
+                
+                window.addEventListener('scroll', () => {
+                    const scrollPosition = window.pageYOffset;
+                    
+                    parallaxElements.forEach(element => {
+                        const speed = parseFloat(element.getAttribute('data-parallax-speed')) || 0.2;
+                        const yPos = -(scrollPosition * speed);
+                        element.style.transform = `translateY(${yPos}px)`;
+                    });
+                });
+            }
+
+            setupHeroAnimations() {
+                const heroTitle = document.querySelector('.hero-title');
+                const heroSubtitle = document.querySelector('.hero-subtitle');
+                const heroButtons = document.querySelector('.hero-buttons');
+
+                // Trigger animations after a short delay to allow for loading
+                setTimeout(() => {
+                    heroTitle.classList.add('animate');
+                    
+                    setTimeout(() => {
+                        heroSubtitle.classList.add('animate');
+                        
+                        setTimeout(() => {
+                            heroButtons.classList.add('animate');
+                        }, 300);
+                    }, 300);
+                }, 500);
+            }
+
+            setupLineAnimations() {
+                // Animate the hero title line by line
+                const heroTitle = document.getElementById('heroTitle');
+                const heroSubtitle = document.getElementById('heroSubtitle');
+                
+                // Split the text into spans for each line
+                this.splitTextIntoLines(heroTitle);
+                this.splitTextIntoLines(heroSubtitle);
+                
+                // Animate each line with a delay
+                setTimeout(() => {
+                    const titleLines = heroTitle.querySelectorAll('span');
+                    titleLines.forEach((line, index) => {
+                        setTimeout(() => {
+                            line.classList.add('animate');
+                        }, index * 300);
+                    });
+                    
+                    setTimeout(() => {
+                        const subtitleLines = heroSubtitle.querySelectorAll('span');
+                        subtitleLines.forEach((line, index) => {
+                            setTimeout(() => {
+                                line.classList.add('animate');
+                            }, index * 300);
+                        });
+                    }, titleLines.length * 300);
+                }, 500);
+            }
+
+            splitTextIntoLines(element) {
+                const text = element.textContent;
+                element.innerHTML = '';
+                
+                // Split by words and create spans for animation
+                const words = text.split(' ');
+                words.forEach((word, index) => {
+                    const span = document.createElement('span');
+                    span.textContent = word + (index < words.length - 1 ? ' ' : '');
+                    element.appendChild(span);
+                });
+            }
+        }
+
+        // Initialize the website when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new ICOMWebsite();
+        });
+
+        // Handle page visibility for performance
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Pause animations when page is not visible
+                document.body.style.animationPlayState = 'paused';
+            } else {
+                // Resume animations when page becomes visible
+                document.body.style.animationPlayState = 'running';
+            }
+        });
+    </script>
+</body>
+
+</html>
